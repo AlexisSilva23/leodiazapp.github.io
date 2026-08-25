@@ -1,58 +1,261 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para ti</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Un mensaje para ti</title>
+  <style>
+    :root {
+      --bg-color: #fdf6f0;
+      --card-bg: #ffffff;
+      --primary-color: #d9534f;
+      --text-color: #333333;
+      --text-muted: #666666;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 30px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      position: relative;
+    }
+
+    /* Ocultar todas las pantallas por defecto */
+    .screen {
+      display: none;
+      animation: fadeIn 0.5s ease-in-out forwards;
+    }
+
+    /* Solo la pantalla que tenga .active se muestra */
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+    }
+
+    .icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    button:active {
+      opacity: 0.85;
+    }
+
+    /* Indicador de notas (puntos) */
+    .progress-bar {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background-color: #e0e0e0;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background-color: var(--primary-color);
+      width: 22px;
+      border-radius: 10px;
+    }
+
+    /* Tarjetas de notas */
+    .note-card {
+      display: none;
+    }
+
+    .note-card.active {
+      display: block;
+    }
+  </style>
+</head>
 <body>
 
-    <div class = container>
-        <!-- Pantalla de bloqueo -->
-        <div id = "screen-locked" class = "screen">
-            <!-- <div class = "envelope-icon">🔒</div> -->
-            <h1>Mensaje no disponible</h1>
-            <p>Este mensaje está protegido y no está disponible para su visualización.</p>
-            <br>
-        </div>
-
-        <!-- Pantalla inicial -->
-        <div id = "screen-intro" class = "screen-active">
-            <!-- <div class = "envelope-icon">✉️</div> -->
-            <h1>Mensaje especial</h1>
-            <p>Contenido del mensaje especial.</p>
-            <br>
-        </div>
-
-        <!-- Pantalla de notas -->
-        <div id = "screen-content" class = "screen">
-            <div class = "progress-bar" id="progress-dots"></div>
-
-            <div class="note-card active">
-                <h1>Nota 1</h1>
-                <p>Este es el contenido de la nota 1...</p>
-                <button class="btn-next">Siguiente</button>
-            </div>
-
-            <div class="note-card">
-                <br>
-                <h1>Nota 2</h1>
-                <p>Este es el contenido de la nota 2...</p>
-                <button class="btn-next">Siguiente</button>>
-
-            <div class="note-card">
-                <br>
-                <h1>Nota 3</h1>
-                <p>Este es el contenido de la nota 3...</p>
-                <button class="btn-next">Cerrar mensaje</button>
-            </div>
-        </div>
+  <div class="container">
+    <!-- 1. Pantalla de Bloqueo (Oculta al inicio) -->
+    <div id="screen-locked" class="screen">
+      <div class="icon">🔒</div>
+      <h1>Mensaje no disponible</h1>
+      <p>Este mensaje ya fue leído y no puede volver a abrirse.</p>
     </div>
 
-    <!-- audio id="audio-message" src="audio/message.mp3"></audio> -->
-    <script src="script.js"></script>
-    
+    <!-- 2. Pantalla Inicial (La única que se muestra al principio) -->
+    <div id="screen-intro" class="screen active">
+      <div class="icon">✉️</div>
+      <h1>Mensaje especial</h1>
+      <p>Asegúrate de tener el volumen activo antes de continuar.</p>
+      <button id="btn-start">Abrir mensaje</button>
+    </div>
+
+    <!-- 3. Pantalla de Notas -->
+    <div id="screen-content" class="screen">
+      <div class="progress-bar" id="progress-dots"></div>
+
+      <!-- Nota 1 -->
+      <div class="note-card active">
+        <h1>Nota 1</h1>
+        <p>Este es el contenido de la nota 1...</p>
+        <button class="btn-next">Siguiente</button>
+      </div>
+
+      <!-- Nota 2 -->
+      <div class="note-card">
+        <h1>Nota 2</h1>
+        <p>Este es el contenido de la nota 2...</p>
+        <button class="btn-next">Siguiente</button>
+      </div>
+
+      <!-- Nota 3 (Final) -->
+      <div class="note-card">
+        <h1>Nota 3</h1>
+        <p>Este es el mensaje final...</p>
+        <button id="btn-finish">Cerrar mensaje</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bg-music" src="alexis-y-la-ctm.mp3" preload="auto" loop></audio>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const STORAGE_KEY = 'mensaje_bloqueado_visto';
+      const audio = document.getElementById('bg-music');
+
+      const screenLocked = document.getElementById('screen-locked');
+      const screenIntro = document.getElementById('screen-intro');
+      const screenContent = document.getElementById('screen-content');
+
+      const btnStart = document.getElementById('btn-start');
+      const btnFinish = document.getElementById('btn-finish');
+      const nextButtons = document.querySelectorAll('.btn-next');
+      const noteCards = document.querySelectorAll('.note-card');
+      const progressContainer = document.getElementById('progress-dots');
+
+      let currentCardIndex = 0;
+
+      // 1. Verificar si ya fue visto
+      try {
+        if (localStorage.getItem(STORAGE_KEY) === 'true') {
+          screenIntro.classList.remove('active');
+          screenContent.classList.remove('active');
+          screenLocked.classList.add('active');
+        }
+      } catch (e) {
+        console.warn("Storage no disponible:", e);
+      }
+
+      // 2. Generar puntos indicadores
+      if (progressContainer) {
+        progressContainer.innerHTML = '';
+        noteCards.forEach((_, idx) => {
+          const dot = document.createElement('div');
+          dot.className = `dot ${idx === 0 ? 'active' : ''}`;
+          progressContainer.appendChild(dot);
+        });
+      }
+
+      // 3. Abrir mensaje
+      if (btnStart) {
+        btnStart.addEventListener('click', () => {
+          if (audio) {
+            audio.play().catch(() => console.log("Audio en espera de archivo"));
+          }
+
+          // Guardar marca de visto
+          try {
+            localStorage.setItem(STORAGE_KEY, 'true');
+          } catch (e) {}
+
+          // Mostrar contenido de notas
+          screenIntro.classList.remove('active');
+          screenContent.classList.add('active');
+        });
+      }
+
+      // 4. Botones Siguiente
+      nextButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          noteCards[currentCardIndex].classList.remove('active');
+          currentCardIndex++;
+          if (currentCardIndex < noteCards.length) {
+            noteCards[currentCardIndex].classList.add('active');
+            updateDots();
+          }
+        });
+      });
+
+      function updateDots() {
+        const dots = progressContainer.querySelectorAll('.dot');
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle('active', idx === currentCardIndex);
+        });
+      }
+
+      // 5. Cerrar mensaje final
+      if (btnFinish) {
+        btnFinish.addEventListener('click', () => {
+          if (audio) audio.pause();
+          screenContent.classList.remove('active');
+          screenLocked.classList.add('active');
+        });
+      }
+    });
+  </script>
 </body>
 </html>
