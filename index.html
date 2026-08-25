@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para ti</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class = container>
+        <!-- Pantalla de bloqueo -->
+        <div id = "screen-locked" class = "screen">
+            <!-- <div class = "envelope-icon">🔒</div> -->
+            <h1>Mensaje no disponible</h1>
+            <p>Este mensaje está protegido y no está disponible para su visualización.</p>
+            <br>
+        </div>
+
+        <!-- Pantalla inicial -->
+        <div id = "screen-intro" class = "screen-active">
+            <!-- <div class = "envelope-icon">✉️</div> -->
+            <h1>Mensaje especial</h1>
+            <p>Contenido del mensaje especial.</p>
+            <br>
+        </div>
+
+        <!-- Pantalla de notas -->
+        <div id = "screen-content" class = "screen">
+            <div class = "progress-bar" id="progress-dots"></div>
+
+            <div class="note-card active">
+                <h1>Nota 1</h1>
+                <p>Este es el contenido de la nota 1...</p>
+                <button class="btn-next">Siguiente</button>
+            </div>
+
+            <div class="note-card">
+                <br>
+                <h1>Nota 2</h1>
+                <p>Este es el contenido de la nota 2...</p>
+                <button class="btn-next">Siguiente</button>>
+
+            <div class="note-card">
+                <br>
+                <h1>Nota 3</h1>
+                <p>Este es el contenido de la nota 3...</p>
+                <button class="btn-next">Cerrar mensaje</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- audio id="audio-message" src="audio/message.mp3"></audio> -->
+    <script src="script.js"></script>
+    
+</body>
+</html>
