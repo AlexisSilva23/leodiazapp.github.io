@@ -1,145 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
   <title>Un mensaje para ti</title>
-  <!-- Supabase CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --bg: #fdf6f0;
-      --card: #ffffff;
-      --primary: #d9534f;
-      --text: #333333;
-      --muted: #666666;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-    .container { width: 100%; max-width: 450px; }
 
-    /* Pantallas */
-    .screen { display: none; background: var(--card); border-radius: 20px; padding: 30px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }
-    .screen.active { display: block; animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    /* Login con clave */
-    input[type="text"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 12px; font-size: 1rem; text-align: center; margin: 15px 0; outline: none; }
-    input[type="text"]:focus { border-color: var(--primary); }
-    button { background: var(--primary); color: white; border: none; padding: 12px 24px; font-size: 1rem; font-weight: 600; border-radius: 30px; cursor: pointer; width: 100%; }
-    .error-msg { color: #d9534f; font-size: 0.9rem; margin-top: 10px; display: none; }
-
-    /* Contenido con Scroll vertical */
-    #screen-content { text-align: left; background: transparent; box-shadow: none; padding: 0; }
-    .note { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-    .note h2 { color: var(--primary); font-size: 1.2rem; margin-bottom: 10px; }
-    .note p { color: var(--muted); line-height: 1.6; font-size: 1rem; }
-
-    /* Sección de Audio al final */
-    .audio-section { background: var(--card); border-radius: 16px; padding: 24px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 40px; }
-    audio { width: 100%; margin-top: 15px; }
-  </style>
 </head>
+
 <body>
 
   <div class="container">
     <!-- 1. Pantalla de Clave -->
     <div id="screen-auth" class="screen active">
-      <div style="font-size: 3rem; margin-bottom: 10px;">✉️</div>
-      <h1 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 8px;">Mensaje especial</h1>
-      <p style="color: var(--muted);">Ingresa tu clave para abrir el mensaje:</p>
+      <div class="welcome-header">✉️</div>
+      <h1>Mensaje especial</h1>
+      <p class="subtitle">Ingresa tu clave para abrir el mensaje:</p>
       <input type="text" id="input-clave" placeholder="Escribe tu clave..." autocomplete="off" />
       <button id="btn-unlock">Desbloquear</button>
-      <div id="auth-error" class="error-msg">Clave inválida o ya utilizada.</div>
+      <div id="auth-error" class="error-msg"></div>
+      <div class="attempt-counter" id="attempt-counter"></div>
     </div>
 
     <!-- 2. Pantalla de Bloqueo Global -->
     <div id="screen-locked" class="screen">
-      <div style="font-size: 3rem; margin-bottom: 10px;">🔒</div>
-      <h1 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 8px;">Mensaje expirado</h1>
-      <p style="color: var(--muted);">Este mensaje era de visualización única y ya ha sido completado.</p>
+      <div class="welcome-header">🔒</div>
+      <h1>Mensaje expirado</h1>
+      <p class="subtitle">Este mensaje era de visualización única y ya ha sido completado.</p>
     </div>
 
     <!-- 3. Contenido en Scroll Continuo -->
-    <div id="screen-content" class="screen">
-      <div class="note">
-        <h2>Nota 1</h2>
-        <p>Quería escribirte esto para decirte algo que llevo tiempo pensando...</p>
-      </div>
-
-      <div class="note">
-        <h2>Nota 2</h2>
-        <p>Cada momento contigo es único y valoro mucho tenerte en mi vida.</p>
-      </div>
-
-      <div class="note">
-        <h2>Nota 3</h2>
-        <p>Me gustas mucho y quería dar este paso de una forma especial.</p>
-      </div>
-
-      <!-- Sección de Audio al final -->
-      <div class="audio-section">
-        <h2 style="color: var(--primary); margin-bottom: 8px;">Una canción para ti</h2>
-        <p style="color: var(--muted); font-size: 0.9rem;">Escúchala hasta el final:</p>
-        <audio id="player" controls src="cancion.mp3" preload="auto"></audio>
-      </div>
-    </div>
+    <div id="screen-content" class="screen"></div>
   </div>
 
-  <script>
-    // Configura tus credenciales de Supabase:
-    const SUPABASE_URL = "https://txqgbyklrsddwgeaadkb.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_e6ghzW3sfcGWHcaELhnjIg_hprebDft";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="function.js"></script>
 
-    const screenAuth = document.getElementById('screen-auth');
-    const screenLocked = document.getElementById('screen-locked');
-    const screenContent = document.getElementById('screen-content');
-    const inputClave = document.getElementById('input-clave');
-    const btnUnlock = document.getElementById('btn-unlock');
-    const authError = document.getElementById('auth-error');
-    const audioPlayer = document.getElementById('player');
-
-    // Desbloqueo mediante Supabase
-    btnUnlock.addEventListener('click', async () => {
-      const claveIngresada = inputClave.value.trim();
-      if (!claveIngresada) return;
-
-      btnUnlock.disabled = true;
-      btnUnlock.innerText = "Verificando...";
-      authError.style.display = 'none';
-
-      // 1. Consultar si la clave existe y NO ha sido usada
-      const { data, error } = await supabase
-        .from('claves')
-        .select('*')
-        .eq('clave', claveIngresada)
-        .eq('usada', false)
-        .single();
-
-      if (error || !data) {
-        authError.style.display = 'block';
-        btnUnlock.disabled = false;
-        btnUnlock.innerText = "Desbloquear";
-        return;
-      }
-
-      // 2. Quemar/invalidar la clave inmediatamente en el servidor
-      await supabase
-        .from('claves')
-        .update({ usada: true })
-        .eq('clave', claveIngresada);
-
-      // 3. Mostrar el contenido
-      screenAuth.classList.remove('active');
-      screenContent.classList.add('active');
-    });
-
-    // 4. Bloquear la pantalla al terminar de escuchar el audio
-    audioPlayer.addEventListener('ended', () => {
-      screenContent.classList.remove('active');
-      screenLocked.classList.add('active');
-    });
-  </script>
 </body>
+
 </html>
